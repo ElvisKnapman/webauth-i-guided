@@ -6,6 +6,9 @@ const bcrypt = require("bcryptjs");
 const db = require("./database/dbConfig.js");
 const Users = require("./users/users-model.js");
 
+// middleare
+const { validateUser } = require("./middleware/validation.js");
+
 const server = express();
 
 server.use(helmet());
@@ -28,21 +31,10 @@ server.post("/api/register", (req, res) => {
     });
 });
 
-server.post("/api/login", (req, res) => {
-  let { username, password } = req.body;
-  Users.findBy({ username })
-    .first()
-    .then(user => {
-      const check = bcrypt.compareSync(password, user.password);
-      if (user && check) {
-        res.status(200).json({ message: `Welcome ${user.username}!` });
-      } else {
-        res.status(401).json({ message: "Invalid Credentials" });
-      }
-    })
-    .catch(error => {
-      res.status(500).json(error);
-    });
+server.post("/api/login", validateUser, (req, res) => {
+  console.log(req);
+  const { user } = req;
+  res.status(200).json({ message: `Welcome ${user.username}` });
 });
 
 server.get("/has", (req, res) => {
