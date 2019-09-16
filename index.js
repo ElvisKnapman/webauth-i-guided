@@ -33,13 +33,9 @@ server.post("/api/login", (req, res) => {
   Users.findBy({ username })
     .first()
     .then(user => {
-      if (user) {
-        const check = bcrypt.compareSync(password, user.password);
-        if (check) {
-          res.status(200).json({ message: `Welcome ${user.username}!` });
-        } else {
-          res.status(400).json({ message: "invalid password" });
-        }
+      const check = bcrypt.compareSync(password, user.password);
+      if (user && check) {
+        res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
         res.status(401).json({ message: "Invalid Credentials" });
       }
